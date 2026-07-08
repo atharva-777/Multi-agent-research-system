@@ -22,13 +22,13 @@ model = ChatHuggingFace(llm=llm)
 
 def build_search_agent():
     return create_agent(
-        model=llm,
+        model=model,
         tools=[web_search]
     )
 
 def build_reader_agent():
     return create_agent(
-        model=llm,
+        model=model,
         tools=[scrape_url]
     )
 
@@ -50,7 +50,7 @@ Structure the report as:
 Be detailed, factual and professional."""),
 ])
 
-writer_chain = writer_prompt | llm | StrOutputParser()
+writer_chain = writer_prompt | model | StrOutputParser()
 
 critic_prompt = ChatPromptTemplate.from_messages([
     ("system", "You are a sharp and constructive research critic. Be honest and specific."),
@@ -75,4 +75,4 @@ One line verdict:
 ..."""),
 ])
 
-critic_chain = critic_prompt | llm | StrOutputParser()
+critic_chain = critic_prompt | model | StrOutputParser()
