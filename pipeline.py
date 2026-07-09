@@ -1,5 +1,14 @@
 from agents import build_reader_agent , build_search_agent , writer_chain , critic_chain
 
+SEARCH_CONTEXT_LIMIT = 2000
+SCRAPED_CONTEXT_LIMIT = 3500
+REPORT_REVIEW_LIMIT = 4500
+
+def truncate_text(text: str, limit: int) -> str:
+    if len(text) <= limit:
+        return text
+    return text[:limit].rsplit(" ", 1)[0] + "\n\n[Content truncated to keep the model request small.]"
+
 def run_research_pipeline(topic : str) -> dict:
 
     state = {}
@@ -42,8 +51,8 @@ def run_research_pipeline(topic : str) -> dict:
     print("="*50)
 
     research_combined = (
-        f"SEARCH RESULTS : \n {state['search_results']} \n\n"
-        f"DETAILED SCRAPED CONTENT : \n {state['scraped_content']}"
+        f"SEARCH RESULTS : \n {truncate_text(state['search_results'], SEARCH_CONTEXT_LIMIT)} \n\n"
+        f"DETAILED SCRAPED CONTENT : \n {truncate_text(state['scraped_content'], SCRAPED_CONTEXT_LIMIT)}"
     )
 
     state["report"] = writer_chain.invoke({
@@ -60,7 +69,7 @@ def run_research_pipeline(topic : str) -> dict:
     print("="*50)
 
     state["feedback"] = critic_chain.invoke({
-        "report":state['report']
+        "report": truncate_text(state['report'], REPORT_REVIEW_LIMIT)
     })
 
     print("\n critic report \n", state['feedback'])
