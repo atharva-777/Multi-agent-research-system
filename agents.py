@@ -15,6 +15,7 @@ llm = HuggingFaceEndpoint(
     repo_id="deepseek-ai/DeepSeek-R1",
     task="text-generation",
     max_new_tokens=256,
+    timeout=300,
     huggingfacehub_api_token=token,
 )
 
